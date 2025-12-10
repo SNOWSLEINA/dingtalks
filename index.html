@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="description" content="钉钉业绩考核快捷入口 ">
+    <title>业绩考核快捷入口</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 苹果设备专用样式优化 */
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --accent-color: #fbbc04;
+            --text-primary: #000000;
+            --text-secondary: #3c3c4399;
+            --bg-light: #f2f2f7;
+            --bg-white: #ffffff;
+            --border-color: #c7c7cc;
+            --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.4;
+            min-height: 100vh;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* 适配iPhone安全区域 */
+        .safe-area {
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 12px 16px;
+            background: var(--bg-white);
+            border-bottom: 0.5px solid var(--border-color);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 400;
+        }
+        
+        .dingtalk-logo {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #1a73e8, #0d5bb5);
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        /* 主内容区域 - 可滚动 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+            padding: 0 12px;
+        }
+        
+        /* 紧凑的图标网格 - 针对iPhone优化 */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        /* 更小的图标卡片 - iPhone风格 */
+        .icon-card {
+            background: var(--bg-white);
+            border-radius: 12px;
+            padding: 16px 10px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 0.5px solid var(--border-color);
+            height: 100%;
+            min-height: 110px;
+            -webkit-touch-callout: none;
+        }
+        
+        /* iOS点击效果 */
+        .icon-card:active {
+            background-color: rgba(26, 115, 232, 0.05);
+            transform: scale(0.97);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 更小的图标 - 针对Retina屏优化 */
+        .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: white;
+            position: relative;
+        }
+        
+        /* 图标阴影效果 */
+        .icon-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 图标颜色方案 */
+        .icon-wrapper.blue { background: linear-gradient(135deg, #4285f4, #1a73e8); }
+        .icon-wrapper.green { background: linear-gradient(135deg, #34a853, #1e8e3e); }
+        .icon-wrapper.orange { background: linear-gradient(135deg, #fbbc04, #f29900); }
+        .icon-wrapper.purple { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
+        .icon-wrapper.red { background: linear-gradient(135deg, #ea4335, #d23c2e); }
+        .icon-wrapper.teal { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+        .icon-wrapper.indigo { background: linear-gradient(135deg, #3f51b5, #303f9f); }
+        .icon-wrapper.cyan { background: linear-gradient(135deg, #00acc1, #00838f); }
+        .icon-wrapper.pink { background: linear-gradient(135deg, #e91e63, #c2185b); }
+        .icon-wrapper.amber { background: linear-gradient(135deg, #ffc107, #ff8f00); }
+        
+        /* 卡片文本样式 - iOS风格 */
+        .icon-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        
+        .icon-card p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.2;
+            margin-bottom: 6px;
+            font-weight: 400;
+        }
+        
+        .card-badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        
+        /* 分类标题 - iOS风格 */
+        .category {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 20px 0 12px 4px;
+            padding-left: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            background: var(--bg-white);
+            border-top: 0.5px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        .footer p {
+            margin-bottom: 4px;
+        }
+        
+        /* iPhone不同型号适配 */
+        
+        /* iPhone SE / 8 等小屏 */
+        @media only screen and (max-device-width: 375px) and (max-device-height: 667px) {
+            .icon-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .icon-card {
+                padding: 14px 8px;
+                min-height: 105px;
+            }
+            
+            .icon-wrapper {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+            
+            .icon-card h3 {
+                font-size: 14px;
+            }
+            
+            .icon-card p {
+                font-size: 11px;
+            }
+            
+            .main-content {
+                padding: 0 10px;
+            }
+        }
+        
+        /* iPhone 12/13/14 标准尺寸 */
+        @media only screen and (device-width: 390px) and (device-height: 844px) {
+            .icon-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+            
+            .icon-card {
+                min-height: 115px;
+            }
+        }
+        
+        /* iPhone 12/13/14 Pro Max 等大屏 */
+        @media only screen and (device-width: 428px) and (device-height: 926px) {
+            .icon-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            
+            .icon-card {
+                min-height: 120px;
+                padding: 18px 12px;
+            }
+            
+            .icon-wrapper {
+                width: 52px;
+                height: 52px;
+                font-size: 22px;
+            }
+        }
+        
+        /* iPhone 横屏模式 */
+        @media only screen and (orientation: landscape) {
+            .icon-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .icon-card {
+                min-height: 100px;
+                padding: 12px 8px;
+            }
+            
+            .main-content {
+                padding: 0 8px;
+            }
+            
+            .header {
+                padding: 8px 16px;
+            }
+            
+            .category {
+                margin: 12px 0 8px 4px;
+                font-size: 15px;
+            }
+        }
+        
+        /* 支持深色模式 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #ffffff;
+                --text-secondary: #8e8e93;
+                --bg-light: #000000;
+                --bg-white: #1c1c1e;
+                --border-color: #38383a;
+                --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            }
+            
+            .icon-card {
+                background: var(--bg-white);
+            }
+            
+            .header, .footer {
+                background: var(--bg-white);
+                border-color: var(--border-color);
+            }
+        }
+        
+        /* 动画效果 - 更平滑的iOS风格 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .icon-card {
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+        
+        .icon-card:nth-child(1) { animation-delay: 0.05s; }
+        .icon-card:nth-child(2) { animation-delay: 0.1s; }
+        .icon-card:nth-child(3) { animation-delay: 0.15s; }
+        .icon-card:nth-child(4) { animation-delay: 0.2s; }
+        .icon-card:nth-child(5) { animation-delay: 0.25s; }
+        .icon-card:nth-child(6) { animation-delay: 0.3s; }
+        .icon-card:nth-child(7) { animation-delay: 0.35s; }
+        .icon-card:nth-child(8) { animation-delay: 0.4s; }
+        .icon-card:nth-child(9) { animation-delay: 0.45s; }
+        .icon-card:nth-child(10) { animation-delay: 0.5s; }
+        
+        /* 高亮点击效果 */
+        .icon-card.highlight {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(251, 188, 4, 0.2);
+        }
+        
+        /* 加载状态 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        /* 无滚动条样式 */
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 支持iPhone X及以上机型的底部安全区域 */
+        .safe-area-bottom {
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+<body>
+    <div class="container safe-area">
+        <div class="header">
+            <h1>
+                <span class="dingtalk-logo">钉</span>
+                业绩考核快捷入口
+            </h1>
+            <p>点击图标快速进入对应的申报页面</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="category">科研业绩</div>
+            <div class="icon-grid">
+               <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-C0AB217F-5AF9-49A2-98AE-5D9C53EB0269" class="icon-card">
+                    <div class="icon-wrapper pink">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>论文</h3>
+                        <p>论文发表申报</p>
+                        <span class="card-badge">科研</span>
+                    </div>
+                </a>
+                
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-96D3A8F7-47C8-4C48-8904-D31AD972AED4" class="icon-card">
+                    <div class="icon-wrapper blue">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>课题结题/立项</h3>
+                        <p>课题结题/立项申报</p>
+                        <span class="card-badge">科研</span>
+                    </div>
+                </a>
+                 
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-353FACB1-FE4C-490A-978B-4535696671F0" class="icon-card">
+                    <div class="icon-wrapper orange">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>专利软著</h3>
+                        <p>专利软著申报</p>
+                        <span class="card-badge">知识产权</span>
+                    </div>
+                </a>
+                
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-64EDE4C8-1C15-4EF9-943D-0AB47CCE787E" class="icon-card">
+                    <div class="icon-wrapper purple">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>专著</h3>
+                        <p>专著成果申报</p>
+                        <span class="card-badge">出版</span>
+                    </div>
+                </a>
+<a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-03D7FA0A-AD0A-4AEE-A2C2-66FC51136415" class="icon-card">
+                   <div class="icon-wrapper green">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>横向课题</h3>
+                        <p>业绩申报不奖励</p>
+                        <span class="card-badge">科研</span>
+                    </div>
+                </a>
+    <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-E7855FFE-FE4E-433F-93B1-F700CF64BA14" class="icon-card">
+                    <div class="icon-wrapper amber">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>国家/行业标准</h3>
+                        <p>标准申报</p>
+                        <span class="card-badge">标准</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="category">教改业绩</div>
+            <div class="icon-grid">
+ <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-35DE17A4-3562-4420-BA5F-6BA524EABE02" class="icon-card">
+                    <div class="icon-wrapper indigo">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>指导学生竞赛</h3>
+                        <p>学生竞赛指导</p>
+                        <span class="card-badge">教学</span>
+                    </div>
+                </a>
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-16D71C76-2368-4504-861C-0C55FEB4D975" class="icon-card">
+                    <div class="icon-wrapper teal">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>教改建设</h3>
+                        <p>课程教材建设</p>
+                        <span class="card-badge">教学</span>
+                    </div>
+                </a>
+                
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-E439CBE4-9753-4140-82EA-D064792A9952" class="icon-card">
+                    <div class="icon-wrapper red">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>教师竞赛</h3>
+                        <p>教师竞赛申报</p>
+                        <span class="card-badge">竞赛</span>
+                    </div>
+                </a>
+                
+               
+                
+                <a href="dingtalk://dingtalkclient/action/openapp?corpid=dingf84eb3340e13a81235c2f4657eb6378f&container_type=work_platform&app_id=-4&redirect_type=jump&redirect_url=https%3A%2F%2Faflow.dingtalk.com%2Fdingtalk%2Fmobile%2Fhomepage.htm%3FappUuid%3D%26backcontrol%3Dfalse%26corpid%3Ddingf84eb3340e13a81235c2f4657eb6378f%26swfrom%3Dqrcode%23%2Fcustom%3FprocessCode%3DPROC-9DABCC92-3386-41A1-84DF-60C4ECD0B629" class="icon-card">
+                    <div class="icon-wrapper cyan">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>优秀案例/教材</h3>
+                        <p>优秀案例教材</p>
+                        <span class="card-badge">荣誉</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="category">其他业绩</div>
+            <div class="icon-grid">
+                
+                
+            </div>
+        </div>
+        
+        <div class="footer safe-area-bottom">
+            <p>业绩考核快捷入口</p>
+            <p>请在钉钉中打开以获得最佳体验</p>
+        </div>
+    </div>
+
+    <script>
+        // 检测设备类型
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isDingTalk = /DingTalk/i.test(navigator.userAgent);
+        const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+        
+        // 添加点击效果
+        document.querySelectorAll('.icon-card').forEach((card) => {
+            card.addEventListener('click', function(e) {
+                // 在非钉钉环境中，提示用户
+                if (!isDingTalk && this.href.startsWith('dingtalk://')) {
+                    if (isWeChat) {
+                        alert('请在钉钉中打开此链接，微信不支持钉钉协议');
+                    } else {
+                        alert('请在钉钉中打开此页面以获得完整功能');
+                    }
+                    e.preventDefault();
+                    return;
+                }
+                
+                // 添加点击反馈
+                this.classList.add('highlight');
+                setTimeout(() => {
+                    this.classList.remove('highlight');
+                }, 300);
+                
+                // 记录点击
+                console.log(`点击了：${this.querySelector('h3').textContent}`);
+            });
+            
+            // iOS专用触摸反馈
+            if (isIOS) {
+                card.addEventListener('touchstart', function() {
+                    this.style.opacity = '0.7';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.opacity = '1';
+                });
+                
+                card.addEventListener('touchcancel', function() {
+                    this.style.opacity = '1';
+                });
+            }
+        });
+        
+        // 页面加载完成
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('苹果优化版业绩考核页面已加载');
+            console.log(`设备类型：${isIOS ? 'iOS设备' : '非iOS设备'}`);
+            console.log(`运行环境：${isDingTalk ? '钉钉内' : isWeChat ? '微信内' : '普通浏览器'}`);
+            
+            // 检测iPhone型号并调整布局
+            detectiPhoneModel();
+            
+            // 如果是非钉钉环境，显示提示
+            if (!isDingTalk && (isIOS || isWeChat)) {
+                setTimeout(() => {
+                    console.log('提示：请在钉钉中打开此页面以获得完整功能');
+                }, 1000);
+            }
+        });
+        
+        // 检测iPhone型号函数
+        function detectiPhoneModel() {
+            const width = window.screen.width;
+            const height = window.screen.height;
+            const pixelRatio = window.devicePixelRatio;
+            
+            console.log(`屏幕分辨率: ${width}x${height}, 像素比: ${pixelRatio}`);
+            
+            // 根据屏幕尺寸判断iPhone型号
+            if (width === 375 && height === 667) {
+                console.log('检测到 iPhone SE/6/7/8');
+            } else if (width === 375 && height === 812) {
+                console.log('检测到 iPhone X/XS/11 Pro');
+            } else if (width === 390 && height === 844) {
+                console.log('检测到 iPhone 12/13/14 标准版');
+            } else if (width === 414 && height === 896) {
+                console.log('检测到 iPhone XR/11/XS Max');
+            } else if (width === 428 && height === 926) {
+                console.log('检测到 iPhone 12/13/14 Pro Max');
+            } else {
+                console.log('未知iPhone型号或非iPhone设备');
+            }
+        }
+        
+        // 监听屏幕方向变化
+        window.addEventListener('resize', () => {
+            // 防抖处理
+            clearTimeout(window.resizeTimer);
+            window.resizeTimer = setTimeout(() => {
+                console.log('屏幕方向改变，重新调整布局');
+                detectiPhoneModel();
+            }, 250);
+        });
+        
+        // 防止双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // 禁用iOS的弹性滚动（可选）
+        document.body.addEventListener('touchmove', function(e) {
+            if (e.target.classList.contains('main-content')) {
+                return;
+            }
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
